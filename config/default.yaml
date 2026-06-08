@@ -1,0 +1,45 @@
+# GameRevenueForecast - Default Configuration
+
+project:
+  name: GameRevenueForecast
+  description: Time-series forecasting for game monetization metrics
+  version: 1.0.0
+
+data:
+  raw_file: game_metrics.xlsx
+  timestamp_column: rechour2
+
+features:
+  lag_windows: [1, 3, 7, 12, 24]
+  rolling_windows: [3, 7, 12, 24]
+  cyclical_encoding: true
+  include_holidays: true
+
+models:
+  cascade:
+    fixed_weights: false
+    catboost_weight: 0.5
+    residual_weight: 0.5
+
+split:
+  test_size: 0.1
+  validation_method: TimeSeriesSplit
+  n_splits: 5
+
+optimization:
+  optuna:
+    n_trials: 100
+    timeout: 3600
+    sampler: TPE
+    n_startup_trials: 20
+
+evaluation:
+  primary_metric: r2_score
+  secondary_metrics:
+    - rmse
+    - mae
+    - smape
+
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

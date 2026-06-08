@@ -1,0 +1,41 @@
+metric_name: income
+target_column: income
+description: "Hourly revenue/income prediction"
+
+cascade:
+  fixed_weights: false
+  catboost_weight: 0.55
+  residual_weight: 0.45
+
+catboost:
+  model_type: catboost_v1
+  iterations: 2000
+  learning_rate: 0.03
+  depth: 10
+
+residual_model:
+  model_type: lightgbm_optimized
+  n_estimators: 800
+  learning_rate: 0.015
+  num_leaves: 50
+
+features:
+  lag_windows: [1, 3, 7, 12, 24]
+  rolling_windows: [3, 7, 12, 24]
+  include_cyclical: true
+  include_holidays: true
+
+target:
+  transformation: log1p
+  post_processing: expm1
+
+split:
+  test_size: 0.1
+  validation_method: TimeSeriesSplit
+  n_splits: 5
+
+evaluation:
+  primary_metric: r2_score
+  secondary_metrics: [rmse, mae, smape]
+  thresholds:
+    min_r2: 0.94
